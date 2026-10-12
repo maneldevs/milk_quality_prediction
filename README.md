@@ -56,7 +56,6 @@ ie pH, Temperature, Taste, Odor, Fat, Turbidity, and Color and the target variab
 - Column temprature has been renamed to temperature. 
 - In column fat has been removed a final space.
 - Target column grade value has been changed to 0 for low, 1 for medium and 1 for high.
-- No missing values in the dataset.
 
 #### Validation framework
 
@@ -65,3 +64,59 @@ The datafreame has been split into three parts:
 - **Train dataset:** The dataset used to train the model. (60%)
 - **Validation dataset:** The dataset used to evaluate the model's performance. (20%)
 - **Test dataset:** The dataset used to evaluate the model's performance. (20%)
+
+#### Data analysis
+
+- There are no missing values in the dataset.
+- The data is considered balanced with a ratio of 60:40.
+- Cols numerical are: pH, Temperature, Color.
+- Cols categorical are: Taste, Odor, Fat, Turbidity.
+- Turbidity has the highest impact on the quality of milk. The higher the turbidity, the more bacteria can grow in the 
+milk, which can lead to spoilage. Therefore, it is important to monitor the turbidity levels in the milk to ensure that 
+it is not too high.
+
+#### Risk ratio analysis
+
+*   **`turbidity` (Risk Ratio = 1.30):** When the milk presents high turbidity, the probability of it being 
+**Rejected (Class 0)** increases by **30%** compared to the global rejection rate baseline. In a dairy production line, 
+high turbidity is a physical indicator of protein destabilization or microbial coagulation, making it a critical 
+"Red Flag" for quality control operators.
+*   **`fat`, `taste`, and `odor` (Risk Ratio ≈ 1.00):** All these features show a Risk Ratio of 1. This means that 
+grouping the data by these features results in a rejection rate that is identical to the global average (~37%). 
+They do not increase or decrease the risk of milk spoilage independently.
+
+*Operational Impact:* In an automated sensing environment, any milk batch triggering a high turbidity alert should immediately be flagged for secondary rigorous testing (like pH verification), as it significantly elevates the risk of contaminating the factory silos.
+
+
+#### Mutual Information Insights
+
+Based on the Mutual Information (MI) scores, we can observe a clear distinction in how much information each binary 
+feature shares with our target variable:
+
+*   **`turbidity` (0.073831):** This feature has, by far, the highest Mutual Information score among all categorical 
+variables. It indicates that turbidity is a strong predictor and shares a significant dependency with the milk quality 
+outcome. 
+*   **`fat`, `taste`, and `odor` (< 0.005):** These features show extremely low MI scores, close to zero. This implies 
+that, on their own, knowing whether the milk has a specific fat, taste, or odor configuration provides almost no global statistical information to determine if the milk will be accepted or rejected. 
+
+*Conclusion for Feature Selection:* While `turbidity` is an essential driver for the model, `fat`, `taste`, and `odor` are candidates for lower importance, and the model will need to evaluate them strictly in combination with continuous 
+features like `pH` and `temperature`.
+
+#### Correlation Analysis
+
+### Numerical Features Correlation Insights
+
+We evaluated the linear relationship between the continuous features and our target variable using the absolute Pearson 
+correlation coefficients. The results provide critical insights into how the physical parameters behave:
+
+*   **`temperature` (0.499257):** This feature displays a **strong moderate correlation** with milk quality. 
+Temperature is the single most dominant linear predictor among all continuous features. In a dairy facility, this 
+aligns perfectly with industry standards: poor temperature management accelerates bacterial growth, leading directly to 
+milk spoilage and immediate rejection at the factory gate.
+*   **`colour` (0.177302):** It shows a **weak but noticeable correlation**. This suggests that changes in light 
+reflectance (milk turning slightly translucent or yellowish) bear a relationship with quality, although it is not 
+strong enough to be a standalone factor.
+*   **`ph` (0.015867):** pH shows an **almost non-existent linear correlation** (close to 0). Although pH is 
+biochemically the most critical indicator of milk freshness, its linear correlation score is close to zero because the 
+relationship is strictly non-linear. As established in the domain description, high-quality milk lives strictly within 
+a tight optimal window (6.25 to 6.90).
