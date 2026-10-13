@@ -11,7 +11,7 @@ risk mitigation.
 The objective of this project is to build an automated quality control system that classifies raw milk into two 
 categories: 
 
-- **Target:** `Grade` (`1` for Acceptable Quality [High/Medium grade], `0` for Rejected Quality [Low grade]).
+- **Target:** `Grade` (`1` for Premium Quality [High grade], `0` for Rejected Quality [Medium/Low grade]).
 - **Features:** `pH`, `Temperature`, `Taste`, `Odor`, `Fat`, `Turbidity`, and `Color`.
 
 By analyzing instant physicochemical parameters collected by internet-of-things (IoT) sensors during milk reception, 
@@ -27,19 +27,22 @@ The models evaluated in this project are:
 * **Logistic Regression:** A machine learning model that uses logistic regression to predict the quality of milk.
 * **Decision Tree Classifier:** A machine learning model that uses decision tree to predict the quality of milk.
 * **Random Forest Classifier:** A machine learning model that uses random forest to predict the quality of milk.
-* **XGBoost Classifier:** A machine learning model that uses gradient boosting to predict the quality of milk.
+* **Gradient Boosting Classifier:** A machine learning model that uses gradient boosting to predict the quality of milk.
 
-To measure the success of our predictive models, as dataset target is balanced (60%-40%) the primary evaluation metrics selected are:
+To measure the success of our predictive models, as dataset target is mildly imbalanced (25%-75%) the primary evaluation
+selected are:
 
-* **ROC-AUC (Primary):** Since this is a balanced classification task, Area Under the ROC Curve will be used to evaluate how well the model distinguishes between acceptable and rejected milk across all thresholds.
+* **ROC-AUC (Primary):** Since this is a mildly imbalanced classification task, Area Under the ROC Curve will be used to 
+evaluate how well the model distinguishes between acceptable and rejected milk across all thresholds.
 * **Accuracy (Secondary):** Used as a standard baseline metric for overall correctness.
 
 
-## EDA
+## Dataset description
 
 The dataset used for this project can be found in the `data` folder or can be downloaded from 
 [Kaggle](https://www.kaggle.com/datasets/cpluzshrijayan/milkquality). This dataset consists of 7 independent variables 
-ie pH, Temperature, Taste, Odor, Fat, Turbidity, and Color and the target variable is the qualityGrade of the milk. The description of the dataset is as follows:
+ie pH, Temperature, Taste, Odor, Fat, Turbidity, and Color and the target variable is the qualityGrade of the milk. 
+The description of the dataset is as follows:
 
 - **pH**: pH of the milk which ranges from 3 to 9.
 - **Temperature (C)**: Temperature of the milk which ranges from 34 to 90.
@@ -47,76 +50,129 @@ ie pH, Temperature, Taste, Odor, Fat, Turbidity, and Color and the target variab
 - **Odor**: Odor of the milk which is a categorical variable with 2 levels: 0 for Bad and 1 for Good.
 - **Fat**: Fat of the milk which is a categorical variable with 2 levels: 0 for Low and 1 for High.
 - **Turbidity**: Turbidity of the milk which is a categorical variable with 2 levels: 0 for Low and 1 for High.
-- **Color**: Color of the milk which ranges from 240 to 255.
-- **Grade(target)**: Represents the quality of the milk. Iss a categorical variable with 3 levels: low, medium and high.
+- **Colour**: Colour of the milk which ranges from 240 to 255.
+- **Grade(target)**: Represents the quality of the milk. Is a categorical variable with 3 levels: low, medium and high.
 
-#### Data preparation:
+### Data preparation:
 
 - Column names has been changed to lowercase and spaces have been replaced with underscores. 
 - Column temprature has been renamed to temperature. 
 - In column fat has been removed a final space.
-- Target column grade value has been changed to 0 for low, 1 for medium and 1 for high.
+- Target column grade value has been changed to 0 for low and medium and 1 for high.
 
-#### Validation framework
+### Validation framework
 
-The datafreame has been split into three parts:
+The dataframe has been split into three parts:
 
 - **Train dataset:** The dataset used to train the model. (60%)
 - **Validation dataset:** The dataset used to evaluate the model's performance. (20%)
 - **Test dataset:** The dataset used to evaluate the model's performance. (20%)
 
-#### Data analysis
+## EDA
+
+### Data analysis
 
 - There are no missing values in the dataset.
-- The data is considered balanced with a ratio of 60:40.
+- The data is considered mildly imbalanced with a ratio of 75:25.
 - Cols numerical are: pH, Temperature, Color.
 - Cols categorical are: Taste, Odor, Fat, Turbidity.
-- Turbidity has the highest impact on the quality of milk. The higher the turbidity, the more bacteria can grow in the 
-milk, which can lead to spoilage. Therefore, it is important to monitor the turbidity levels in the milk to ensure that 
-it is not too high.
 
-#### Risk ratio analysis
+### Risk Ratio Analysis
 
-*   **`turbidity` (Risk Ratio = 1.30):** When the milk presents high turbidity, the probability of it being 
-**Rejected (Class 0)** increases by **30%** compared to the global rejection rate baseline. In a dairy production line, 
-high turbidity is a physical indicator of protein destabilization or microbial coagulation, making it a critical 
-"Red Flag" for quality control operators.
-*   **`fat`, `taste`, and `odor` (Risk Ratio ≈ 1.00):** All these features show a Risk Ratio of 1. This means that 
-grouping the data by these features results in a rejection rate that is identical to the global average (~37%). 
-They do not increase or decrease the risk of milk spoilage independently.
+The Risk Ratio was evaluated to measure how much specific binary configurations increase the probability of a batch being downgraded to **Non-Premium Quality (Class 0)** relative to the global baseline (~75%):
 
-*Operational Impact:* In an automated sensing environment, any milk batch triggering a high turbidity alert should immediately be flagged for secondary rigorous testing (like pH verification), as it significantly elevates the risk of contaminating the factory silos.
+*   **`odor` (Malo: 1.73 / Bueno: 0.40):** Defective odor is the strongest sensory indicator for disqualification. 
+Conversely, a good odor profile acts as a massive statistical protector.
+*   **`fat` (Bajo: 1.48 / Alto: 0.014):** Low fat content elevates the risk of premium rejection. An optimal/high fat 
+configuration drops the rejection risk, proving that high fat is a mandatory biophysical requirement for premium 
+categorization.
+*   **`turbidity` (Alta: 1.30 / Baja: 0.70):** High turbidity increments the downgrade risk, acting as a physical proxy 
+for protein instability or particle contamination at reception.
+*   **`taste` (Malo: 1.20 / Bueno: 0.77):** A bad flavor profile increases the rejection risk, showing the weakest 
+independent impact among all organoleptic variables.
 
 
-#### Mutual Information Insights
+### Mutual Information Insights
 
-Based on the Mutual Information (MI) scores, we can observe a clear distinction in how much information each binary 
-feature shares with our target variable:
+Based on the updated Mutual Information (MI) scores targeting Premium Quality (High Grade), a significant shift in 
+feature dependency is observed compared to the previous baseline:
 
-*   **`turbidity` (0.073831):** This feature has, by far, the highest Mutual Information score among all categorical 
-variables. It indicates that turbidity is a strong predictor and shares a significant dependency with the milk quality 
-outcome. 
-*   **`fat`, `taste`, and `odor` (< 0.005):** These features show extremely low MI scores, close to zero. This implies 
-that, on their own, knowing whether the milk has a specific fat, taste, or odor configuration provides almost no global statistical information to determine if the milk will be accepted or rejected. 
+*   **`fat` (0.112955):** This feature now holds the highest Mutual Information score among all categorical variables.
+ This indicates that fat content shares a strong global dependency with premium milk classification. Mechanistically, 
+ achieving a premium industrial grade requires optimal, standardized fat percentages, making this feature a key 
+ structural driver for the predictive models.
+*   **`odor` (0.076114):** This feature demonstrates a moderate-to-high MI score. While odor was negligible when 
+predicting basic spoilage, it becomes a crucial descriptor when isolating premium-grade milk, as perfect organoleptic 
+properties are mandatory for high-tier products.
+*   **`turbidity` (0.015025) and `taste` (0.007889):** These features display low MI scores, close to zero. On their 
+own, knowing the specific turbidity or taste configuration provides very little global statistical information to 
+determine if the milk reaches a premium status.
 
-*Conclusion for Feature Selection:* While `turbidity` is an essential driver for the model, `fat`, `taste`, and `odor` are candidates for lower importance, and the model will need to evaluate them strictly in combination with continuous 
-features like `pH` and `temperature`.
+*Conclusion for Feature Selection:* While `fat` and `odor` are identified as the primary categorical anchors for 
+isolating premium quality, `turbidity` and `taste` offer lower independent predictive power and will rely on 
+combinations with continuous parameters during model training.
 
-#### Correlation Analysis
+### Correlation Analysis
 
-### Numerical Features Correlation Insights
+The linear relationship between the continuous features and the premium quality target was evaluated using the absolute 
+Pearson correlation coefficients. The mild class imbalance configuration reveals the following dynamics:
 
-We evaluated the linear relationship between the continuous features and our target variable using the absolute Pearson 
-correlation coefficients. The results provide critical insights into how the physical parameters behave:
+*   **`temperature` (0.203598):** This feature displays a **weak but noticeable linear correlation**. Compared to the 
+previous spoilage baseline, the correlation is lower because standard and premium milk can share similar stable storage 
+temperatures. However, it remains the most dominant linear predictor among continuous variables, as strict thermal 
+management is still a baseline requirement for high-grade dairy preservation.
+*   **`colour` (0.088529):** It shows an **extremely weak linear correlation**, indicating that simple light 
+reflectance shifts are insufficient to linearly separate standard-grade milk from premium-grade milk.
+*   **`ph` (0.021939):** The absolute linear correlation for pH remains **almost non-existent** (close to 0). 
 
-*   **`temperature` (0.499257):** This feature displays a **strong moderate correlation** with milk quality. 
-Temperature is the single most dominant linear predictor among all continuous features. In a dairy facility, this 
-aligns perfectly with industry standards: poor temperature management accelerates bacterial growth, leading directly to 
-milk spoilage and immediate rejection at the factory gate.
-*   **`colour` (0.177302):** It shows a **weak but noticeable correlation**. This suggests that changes in light 
-reflectance (milk turning slightly translucent or yellowish) bear a relationship with quality, although it is not 
-strong enough to be a standalone factor.
-*   **`ph` (0.015867):** pH shows an **almost non-existent linear correlation** (close to 0). Although pH is 
-biochemically the most critical indicator of milk freshness, its linear correlation score is close to zero because the 
-relationship is strictly non-linear. As established in the domain description, high-quality milk lives strictly within 
-a tight optimal window (6.25 to 6.90).
+#### 💡 Critical Analytical Note on pH Non-Linearity:
+Although pH is biochemically the ultimate indicator of dairy quality, its linear correlation score is near zero 
+because **the underlying relationship remains strictly non-linear**. Premium milk requires an exceptionally narrow, 
+perfect chemical window. If the pH is too low (acidic/spoiled) or too high (adulterated/mastitis), the batch falls into 
+Class 0. Because premium milk is bounded by both an upper and a lower limit, linear correlation metrics fail to capture 
+this windowed behavior. However, non-linear algorithms such as **Decision Trees**, **Random Forests**, and 
+**Gradient Boosting** are mathematically equipped to map these thresholds natively.
+
+
+## Modeling approach & metrics
+
+Multiple machine learning algorithms—including **Logistic Regression**, **Decision Trees**, **Random Forests**, and 
+**Gradient Boosting**—were tested, evaluating their structural hyperparameters (such as regularization strength $C$, 
+tree depth, and learning rates) alongside classification decision thresholds to optimize performance based on 
+industrial safety and waste constraints.
+
+The table below summarizes the performance of each trained algorithm on the validation dataset after hyperparameter 
+tuning:
+
+| Model | Hyperparameters | Accuracy | ROC-AUC Score |
+| :--- | :--- | :--- | :--- |
+| **Logistic Regression** | solver=`lbfgs`, `C=10`, `max_iter=1000` | 0.868 | 0.924 |
+| **Decision Tree** | `max_depth=5`, `min_samples_leaf=10` | 0.986 | 0.972 |
+| **Random Forest** | `n_estimators=X`, `max_depth=Y` | *[Fill after tuning]* | *[Fill after tuning]* |
+| **Gradient Boosting** | `eta=X`, `max_depth=Y` | *[Fill after tuning]* | *[Fill after tuning]* |
+
+The final model chosen for production deployment will be selected based on the highest **ROC-AUC Score** demonstrated 
+in the performance summary table. This metric ensures maximum robust discriminative power across all operational 
+classification thresholds. 
+
+Currently, **[INSERT_WINNING_MODEL_HERE]** is identified as the optimal candidate. Consequently, this specific model 
+structure will be retrained on the full development dataset (`df_full_train`) and evaluated against the final unseen 
+testing dataset (`df_test`) to verify its generalization capabilities before being exported to production.
+
+Threadholds were set to maximize accuracy and minimize false positives (rejecting milk that is not safe to consume).
+The thredhold selected was *[Fill with selected model calculus]*. Precision and recall and f1-score were used to 
+evaluate the performance of each threshold.
+
+## Architecture
+
+## How to run
+
+### How to run locally
+
+### How to run using Docker
+
+### How to run on the cloud
+
+## API usage example
+
+## Known limitations and next steps
