@@ -155,13 +155,11 @@ The final model chosen for production deployment will be selected based on the h
 in the performance summary table. This metric ensures maximum robust discriminative power across all operational 
 classification thresholds. 
 
-Currently, **[INSERT_WINNING_MODEL_HERE]** is identified as the optimal candidate. Consequently, this specific model 
-structure will be retrained on the full development dataset (`df_full_train`) and evaluated against the final unseen 
+**Gradient Boosting** is identified as the optimal candidate. Consequently, this specific model 
+structure has been retrained on the full development dataset (`df_full_train`) and evaluated against the final unseen 
 testing dataset (`df_test`) to verify its generalization capabilities before being exported to production.
 
-Threadholds were set to maximize accuracy and minimize false positives (rejecting milk that is not safe to consume).
-The thredhold selected was *[Fill with selected model calculus]*. Precision and recall and f1-score were used to 
-evaluate the performance of each threshold.
+Final ROC-AUC score: **0.998**
 
 ## Architecture
 
