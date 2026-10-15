@@ -149,7 +149,7 @@ tuning:
 | **Logistic Regression** | solver=`lbfgs`, `C=10`, `max_iter=1000` | 0.868 | 0.924 |
 | **Decision Tree** | `max_depth=5`, `min_samples_leaf=10` | 0.986 | 0.972 |
 | **Random Forest** | `n_estimators=50`, `max_depth=3`, `min_samples_leaf=10` | 0.972 | 0.991 |
-| **Gradient Boosting** | `eta=0.01`, `max_depth=4`, `min_child_weigh=1` | 0.976 | 0.999 |
+| **Gradient Boosting** | `eta=0.03`, `max_depth=3`, `min_child_weigh=1` | 0.972 | 0.995 |
 
 The final model chosen for production deployment will be selected based on the highest **ROC-AUC Score** demonstrated 
 in the performance summary table. This metric ensures maximum robust discriminative power across all operational 
