@@ -167,9 +167,76 @@ Final ROC-AUC score: **0.998**
 
 ### How to run locally
 
+- Requirements. Make sure you have the following installed:
+    - Python 3.14
+    - pip
+
+- Clone the repository from GitHub:
+```bash
+git clone https://github.com/maneldevs/milk_quality_prediction
+```
+
+- Create a virtual environment:
+```bash
+python -m venv .venv
+```
+
+- Activate the virtual environment:
+```bash
+source .venv/bin/activate
+```
+
+- Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+- Be sure you are in the root directory of the project
+
+- Run the training script:
+```bash
+python scripts/train.py
+# Optionally, you can specify the data and model paths:
+# python scripts/train.py --data data/milknew.csv --model models/model.bin
+```
+
+- Run the prediction script:
+```bash
+python scripts/predict.py
+# Optionally, you can specify the model path:
+# python scripts/predict.py --model models/model.bin
+```
+
+- The results will be printed to the console:
+```
+sample
+-----
+ph=6.8 temperature=45.0 taste=0 odor=1 fat=1 turbidity=1 colour=255
+-----
+prediction = 0.8080000281333923
+Is High Grade = True
+```
+
+- Start the Web Service:
+```bash
+python scripts/serve.py
+```
+
+- Open the Web Service in your browser:
+```bash
+http://localhost:8000
+```
+
+TODO!!!!!!!!!! - Add a screenshot of the Web Service
+
+- Optionally Test the Web Service from the command line:
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"pH": 3.5, "Temperature": 35, "Taste": 1, "Odor": 1, "Fat": 1, "Turbidity": 1, "Color": 240}' http://localhost:8000/predict
+```
+
 ### How to run using Docker
 
-### How to run on the cloud
+### How to run on the Cloud
 
 ## API usage example
 
