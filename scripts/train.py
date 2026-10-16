@@ -3,8 +3,8 @@ import pandas as pd
 import xgboost as xgb
 import pickle
 import argparse
+from typing import Tuple
 from pathlib import Path
-
 from dataclasses import dataclass
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction import DictVectorizer
@@ -43,7 +43,7 @@ def generate_dataset(df: pd.DataFrame) -> Dataset:
     dataset = Dataset(df_full_train, y_full_train)
     return dataset
 
-def train_xgb_model(dataset: Dataset) -> tuple[DictVectorizer, xgb.Booster]:
+def train_xgb_model(dataset: Dataset) -> Tuple[DictVectorizer, xgb.Booster]:
     print("Training XGBoost model...")
     dicts_full_train = dataset.df_full_train.to_dict(orient='records')
     dv = DictVectorizer(sparse=False)

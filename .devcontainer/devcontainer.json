@@ -1,6 +1,6 @@
 {
     "name": "Python 3 - Zoomcamp - Milk Quality Prediction",
-    "image": "mcr.microsoft.com/devcontainers/python:3-3.14-trixie",
+    "image": "mcr.microsoft.com/devcontainers/python:3.10-trixie",
     "runArgs": [
         "--name", "milk_quality_prediction"
     ],

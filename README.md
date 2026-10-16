@@ -168,8 +168,8 @@ Final ROC-AUC score: **0.998**
 ### How to run locally
 
 - Requirements. Make sure you have the following installed:
-    - Python 3.14
-    - pip
+    - Python >3.10
+    - pip >26.2
 
 - Clone the repository from GitHub:
 ```bash
@@ -232,6 +232,11 @@ TODO!!!!!!!!!! - Add a screenshot of the Web Service
 - Optionally Test the Web Service from the command line:
 ```bash
 curl -X POST -H "Content-Type: application/json" -d '{"pH": 3.5, "Temperature": 35, "Taste": 1, "Odor": 1, "Fat": 1, "Turbidity": 1, "Color": 240}' http://localhost:8000/predict
+```
+
+- Deactivate the virtual environment:
+```bash
+deactivate
 ```
 
 ### How to run using Docker
