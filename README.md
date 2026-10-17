@@ -249,6 +249,46 @@ deactivate
 
 ### How to run using Docker
 
+- Requirements. Make sure you have the following installed:
+    - Docker
+
+- Clone the repository from GitHub:
+```bash
+git clone https://github.com/maneldevs/milk_quality_prediction
+```
+
+- Be sure you are in the root directory of the project
+
+- Build the Docker image:
+```bash
+docker build -t milk_quality_prediction .
+```
+
+- Run the Docker container:
+```bash
+docker run --rm -p 7860:7860 milk_quality_prediction
+```
+
+- Open the Web Service in your browser:
+```bash
+http://localhost:7860
+```
+
+<img src="images/screenshot_web.png" alt="screenshot_web" width="300"/>
+
+- Optionally Test the Web Service from the command line:
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"ph": 6.8, "temperature": 45, "taste": 0, "odor": 1, "fat": 1, "turbidity": 1, "colour": 255}' http://localhost:7860/api/predict
+```
+
+- Response:
+```json
+{
+  "prediction": 0.8080000281333923,
+  "is_high_grade": true
+}
+```
+
 ### How to run on the Cloud
 
 ## API usage example
