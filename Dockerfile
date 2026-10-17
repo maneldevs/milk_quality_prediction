@@ -2,7 +2,8 @@ FROM python:3.10-slim-bookworm
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     HOME=/home/user \
-    PATH=/home/user/.local/bin:$PATH
+    PATH=/home/user/.local/bin:$PATH \
+    PYTHONPATH=/home/user/app:/home/user/app/scripts
 RUN useradd -m -u 1000 user
 WORKDIR $HOME/app
 COPY --chown=user requirements.txt .

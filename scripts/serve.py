@@ -9,7 +9,6 @@ from pydantic import BaseModel, Field, ValidationError
 from predict import PredictionResponse, process_prediction
 
 
-
 app = FastAPI(title="Milk Quality Prediction")
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = BASE_DIR / "templates"
