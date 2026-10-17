@@ -262,6 +262,7 @@ git clone https://github.com/maneldevs/milk_quality_prediction
 - Build the Docker image:
 ```bash
 docker build -t milk_quality_prediction .
+# this process can take several minutes
 ```
 
 - Run the Docker container:
@@ -289,8 +290,12 @@ curl -X POST -H "Content-Type: application/json" -d '{"ph": 6.8, "temperature": 
 }
 ```
 
+- Stop and delete the Docker container:
+```bash
+Pulse the Ctrl+C key
+```
+
 ### How to run on the Cloud
 
-## API usage example
 
 ## Known limitations and next steps
