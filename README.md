@@ -224,14 +224,22 @@ python scripts/serve.py
 
 - Open the Web Service in your browser:
 ```bash
-http://localhost:8000
+http://localhost:7860
 ```
 
-TODO!!!!!!!!!! - Add a screenshot of the Web Service
+<img src="images/screenshot_web.png" alt="screenshot_web" width="300"/>
 
 - Optionally Test the Web Service from the command line:
 ```bash
-curl -X POST -H "Content-Type: application/json" -d '{"pH": 3.5, "Temperature": 35, "Taste": 1, "Odor": 1, "Fat": 1, "Turbidity": 1, "Color": 240}' http://localhost:8000/predict
+curl -X POST -H "Content-Type: application/json" -d '{"ph": 6.8, "temperature": 45, "taste": 0, "odor": 1, "fat": 1, "turbidity": 1, "colour": 255}' http://localhost:7860/api/predict
+```
+
+- Response:
+```json
+{
+  "prediction": 0.8080000281333923,
+  "is_high_grade": true
+}
 ```
 
 - Deactivate the virtual environment:

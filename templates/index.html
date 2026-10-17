@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Milk Quality Predictor</title>
+    <link 
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" 
+        rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" 
+        crossorigin="anonymous">
+  </head>
+  <body class="bg-light">
+    <div class="container my-5">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+          <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-body p-4 p-sm-5">
+              <h2 class="card-title text-center mb-4 fw-bold text-primary">
+                🥛 Milk Quality Predictor
+              </h2>
+                {% if error %}
+                <div class="alert alert-danger border-0 shadow-sm rounded-3 text-center p-3 mt-4" role="alert">
+                  <h5 class="alert-heading fw-bold mb-1">❌ Invalid Input Data</h5>
+                  <p class="mb-0 small text-dark fw-medium">{{ error }}</p>
+                </div>
+                {% endif %}
+              <form action="/" method="POST">
+
+                <div class="row g-3 mb-4">
+                  <div class="col-12 col-sm-6">
+                    <label for="ph" class="form-label fw-semibold text-secondary">pH (3.0 - 9.0)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      class="form-control"
+                      id="ph"
+                      name="ph"
+                      value="{{ ph | default(6.5) }}"
+                      required
+                    />
+                  </div>
+
+                  <div class="col-12 col-sm-6">
+                    <label for="temperature" class="form-label fw-semibold text-secondary">Temperature (°C)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      class="form-control"
+                      id="temperature"
+                      name="temperature"
+                      value="{{ temperature | default(38.0) }}"
+                      required
+                    />
+                  </div>
+
+                  <div class="col-6">
+                    <label for="colour" class="form-label fw-semibold text-secondary">Colour (240 - 255)</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="colour"
+                      name="colour"
+                      value="{{ colour | default(255) }}"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <hr class="text-muted my-4" />
+
+                <div class="row g-3 mb-4">
+
+                  <div class="col-6">
+                    <label for="taste" class="form-label fw-semibold text-secondary">Taste</label>
+                    <select id="taste" name="taste" class="form-select" required>
+                      <option value="1" {% if taste | string =="1" %}selected{% endif %}>Good (1)</option>
+                      <option value="0" {% if taste | string =="0" %}selected{% endif %}>Bad (0)</option>
+                    </select>
+                  </div>
+
+                  <div class="col-6">
+                    <label for="odor" class="form-label fw-semibold text-secondary">Odor</label>
+                    <select id="odor" name="odor" class="form-select" required>
+                      <option value="1" {% if odor | string =="1" %}selected{% endif %}>Good (1)</option>
+                      <option value="0" {% if odor | string =="0" %}selected{% endif %}>Bad (0)</option>
+                    </select>
+                  </div>
+
+                  <div class="col-6">
+                    <label for="fat" class="form-label fw-semibold text-secondary">Fat</label>
+                    <select id="fat" name="fat" class="form-select" required>
+                      <option value="1" {% if fat | string =="1" %}selected{% endif %}>High (1)</option>
+                      <option value="0" {% if fat | string =="0" %}selected{% endif %}>Low (0)</option>
+                    </select>
+                  </div>
+
+                  <div class="col-6">
+                    <label for="turbidity" class="form-label fw-semibold text-secondary">Turbidity</label>
+                    <select id="turbidity" name="turbidity" class="form-select" required>
+                      <option value="0" {% if turbidity | string =="0" %}selected{% endif %}>Low (0)</option>
+                      <option value="1" {% if turbidity | string =="1" %}selected{% endif %}>High (1)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Botón de Envío estilo Bootstrap -->
+                <div class="d-grid gap-2 mt-4">
+                  <button type="submit" class="btn btn-primary btn-lg fw-bold rounded-2 shadow-sm">Evaluate Quality</button>
+                </div>
+              </form>
+
+              <!-- Bloque de Resultados con Componentes de Alertas de Bootstrap -->
+              {% if prediction is not none %}
+              <div class="mt-4 pt-2">
+                {% if is_high_grade %}
+                <div
+                  class="alert alert-success border-0 shadow-sm rounded-3 text-center p-3 mb-0"
+                  role="alert"
+                >
+                  <h4 class="alert-heading fw-bold mb-1">
+                    ✨ ¡High Quality!
+                  </h4>
+                  <p class="mb-0 text-muted small">
+                    The batch meets the most stringent standards.
+                  </p>
+                  <hr class="my-2 opacity-25" />
+                  <span class="badge bg-success px-3 py-2 rounded-pill fs-6 mt-1">
+                    Prediction: {{ (prediction | float * 100) | round(2) }}%
+                  </span>
+                </div>
+                {% else %}
+                <div class="alert alert-warning border-0 shadow-sm rounded-3 text-center p-3 mb-0" role="alert">
+                  <h4 class="alert-heading fw-bold mb-1">
+                    ⚠️ Low Quality
+                  </h4>
+                  <p class="mb-0 text-muted small">
+                    The batch does not meet the plant's low quality standards.
+                  </p>
+                  <hr class="my-2 opacity-25" />
+                  <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fs-6 mt-1">
+                    Prediction: {{ (prediction | float * 100) | round(2) }}%
+                  </span>
+                </div>
+                {% endif %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script 
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" 
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" 
+        crossorigin="anonymous">
+    </script>
+  </body>
+</html>
