@@ -12,7 +12,7 @@ The objective of this project is to build an automated quality control system th
 categories: 
 
 - **Target:** `Grade` (`1` for Premium Quality [High grade], `0` for Rejected Quality [Medium/Low grade]).
-- **Features:** `pH`, `Temperature`, `Taste`, `Odor`, `Fat`, `Turbidity`, and `Color`.
+- **Features:** `pH`, `Temperature`, `Taste`, `Odor`, `Fat`, `Turbidity`, and `Colour`.
 
 By analyzing instant physicochemical parameters collected by internet-of-things (IoT) sensors during milk reception, 
 the machine learning model will predict whether a specific batch meets the industrial standards or needs to be 
@@ -163,6 +163,52 @@ Final ROC-AUC score: **0.998**
 
 ## Architecture
 
+### Project folder structure
+
+![alt text](image.png)
+
+- devcontainer: Contains the configuration files for the development environment.
+- data: Contains the raw data used for training and testing.
+- models: Contains the trained models.
+- notebooks: Contains Jupyter notebooks for data exploration and analysis.
+- scripts: Contains the Python scripts for training, testing, and serving the web service.
+  - train.py: Contains the main logic for training the model and saving it to disk.
+  - predict.py: Contains the main logic for making predictions.
+  - serve.py: Contains the FastAPI server for serving the web service.
+- templates: Contains the HTML templates for the web service.
+- Dockerfile: Specifies the Docker configuration for the web service.
+- requirements.txt: Lists the required Python packages for the project.
+- README.md: Provides an overview of the project and instructions for running it.
+
+### Architecture diagram
+
+```mermaid
+graph TD
+    subgraph DevEnvironment [Development Environment - WSL: Ubuntu]
+        A[milknew.csv] -->|1. Train Script| B(train.py)
+        B -->|2. Serialize| C[modelXB.bin]
+    end
+
+    subgraph Deployment [Deployment Artifacts]
+        C -->|Git Push| D[Repository]
+        E[index.html] -->|Git Push| D
+    end
+
+    subgraph Production [Production Environment - Render Cloud]
+        D -->|Docker Build| F[Render Web Service]
+        F -->|3. Entry Point| G(serve.py)
+        G -->|4. Import & Load| H(predict.py)
+        C -.->|Read Binary| H
+        E -.->|Render View| G
+        
+        I[User] -->|HTTP POST| G
+        G -->|Input Data| H
+        H -->|Return Grade| G
+        G -->|HTML Response| I
+    end
+
+```
+
 ## How to run
 
 ### How to run locally
@@ -297,5 +343,50 @@ Pulse the Ctrl+C key
 
 ### How to run on the Cloud
 
+- Open the Web Service in your browser:
+```bash
+https://milk-quality-prediction-hhwp.onrender.com
+```
+
+<img src="images/screenshot_web.png" alt="screenshot_web" width="300"/>
+
+- Optionally Test the Web Service from the command line:
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"ph": 6.8, "temperature": 45, "taste": 0, "odor": 1, "fat": 1, "turbidity": 1, "colour": 255}' https://milk-quality-prediction-hhwp.onrender.com/api/predict
+```
+
+- Response:
+```json
+{
+  "prediction": 0.8080000281333923,
+  "is_high_grade": true
+}
+```
 
 ## Known limitations and next steps
+
+While the developed predictive system demonstrates strong robustness and high discriminative capabilities, several 
+architectural limitations have been identified along with strategic next steps to improve the pipeline for industrial 
+production:
+
+*   **Dataset Size and Diversity:** The model was trained on a relatively small tabular dataset under static 
+environmental assumptions. Real-world dairy plants experience variations due to seasonal shifts, cow diets, and 
+varying chemical compositions across different cattle breeds, which are not captured in the current feature space.
+*   **Static Biochemical Thresholds:** High-capacity non-linear models (such as Gradient Boosting and Decision Trees) 
+can over-rely on exact, crisp boundaries—particularly regarding pH cuts. In an industrial deployment, minor sensor
+drift or uncalibrated IoT hardware could degrade classification performance significantly if values hover near these
+hard limits.
+*   **Binary Reduction Constraints:** Grouping both "Low" and "Medium" quality grades into a single rejected category
+ simplifies the pipeline but discards nuances. Certain industrial processes can utilize medium-grade milk for specific 
+secondary derivatives (e.g., powdered milk or industrial butter), meaning a binary approach limits operational 
+optimization.
+
+The following step to improve the system's performance and robustness could be:
+
+*   **Transition to Multi-Class Classification:** Expand the target framework from binary to multi-class or 
+hierarchical prediction. This will allow the system to separate premium-grade milk from usable standard-grade batches 
+and highly contaminated or spoiled milk that requires immediate disposal.
+
+*   **Use an industrial big dataset:** Utilize a large, diverse, and up-to-date dataset that includes real-world 
+milk production and consumption scenarios. This will enable the system to learn from real-world data and adapt to 
+changing conditions.
